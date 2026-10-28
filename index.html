@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Customer Support KPI Dashboard | Devendra Chaudhary</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600;700&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{--bg:#f5f7f8;--card:#fff;--ink:#14263a;--mute:#5d6b7a;--line:#dde3e8;--teal:#0f8b8d;--coral:#e4572e;--amber:#d99a1c}
+@media (prefers-color-scheme:dark){:root{--bg:#0e1822;--card:#15222f;--ink:#e8eef3;--mute:#9aaab8;--line:#243546;--teal:#3cc4c6;--coral:#ff7a54;--amber:#f0b83e}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 "Public Sans",system-ui,-apple-system,"Segoe UI",sans-serif}
+.wrap{max-width:1080px;margin:0 auto;padding:28px 18px 40px}
+h1{font-size:26px;margin:0 0 4px;letter-spacing:-.01em}
+h2{font-size:15px;margin:0 0 12px}
+.sub{color:var(--mute);margin:0 0 16px}
+.note{border-left:4px solid var(--amber);background:var(--card);padding:10px 14px;margin:0 0 22px;color:var(--mute);font-size:13px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:16px}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:14px}
+.kpi b{display:block;font-size:28px;line-height:1.1}
+.kpi span{color:var(--mute);font-size:13px}
+.kpi em{display:block;font-style:normal;font-size:12px;margin-top:4px;color:var(--teal);font-weight:600}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:16px;min-width:0}
+.box{position:relative;height:230px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{text-align:left;padding:8px 6px;border-bottom:1px solid var(--line)}
+th{color:var(--mute);font-weight:600}
+td.n,th.n{text-align:right}
+.ins{margin:0;padding-left:18px}.ins li{margin-bottom:6px}
+footer{margin-top:24px;color:var(--mute);font-size:13px}
+footer a{color:var(--teal)}
+:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <h1>Customer Support KPI Dashboard</h1>
+  <p class="sub">Member support operations, Apr–Sep 2026 · Devendra Chaudhary</p>
+  <p class="note">Sample data. The figures below are simulated to demonstrate how I track and report support performance. They are not real company data.</p>
+
+  <section class="kpis" id="kpis" aria-label="Key metrics for September 2026"></section>
+
+  <section class="grid">
+    <div class="card"><h2>Ticket volume and escalations</h2><div class="box"><canvas id="c1"></canvas></div></div>
+    <div class="card"><h2>CSAT (%)</h2><div class="box"><canvas id="c2"></canvas></div></div>
+    <div class="card"><h2>First-contact resolution and repeat tickets (%)</h2><div class="box"><canvas id="c3"></canvas></div></div>
+    <div class="card"><h2>SLA adherence (%) and first response (min)</h2><div class="box"><canvas id="c4"></canvas></div></div>
+  </section>
+
+  <section class="grid" style="margin-top:12px">
+    <div class="card">
+      <h2>Tickets by category, Sep 2026</h2>
+      <table><thead><tr><th>Category</th><th class="n">Tickets</th><th class="n">Avg resolution (h)</th><th class="n">CSAT</th></tr></thead><tbody id="cat"></tbody></table>
+    </div>
+    <div class="card">
+      <h2>What the data shows</h2>
+      <ul class="ins" id="ins"></ul>
+    </div>
+  </section>
+
+  <footer>Built with HTML, CSS and Chart.js. Metrics: CSAT, FCR, SLA adherence, first response time, repeat-ticket rate, escalation rate. <a href="https://www.linkedin.com/in/devendra-chaudhary-0452bb198">LinkedIn</a> · <a href="mailto:devraj800063@gmail.com">Email</a></footer>
+</main>
+
+<script>
+const M=["Apr","May","Jun","Jul","Aug","Sep"];
+const D={
+  tickets:[1180,1245,1310,1275,1390,1420],
+  esc:[64,58,52,47,41,38],
+  csat:[93.8,94.5,95.2,95.6,96.1,96.4],
+  fcr:[71,73,75,77,79,80],
+  repeat:[18,16,14,12,11,10.8],
+  sla:[91,93,94,95,96,96.5],
+  frt:[42,38,34,30,27,25]
+};
+const cats=[["Offers (missing or pending credits)",540,18.5,94.9],["Receipts",312,12.0,95.8],["Surveys",256,9.5,96.2],["Shop (cash back)",199,22.0,95.1],["Account and redemption",113,8.0,97.4]];
+const L=D.tickets.length-1, f=k=>D[k][L], d=k=>(D[k][L]-D[k][0]);
+const sg=(v,u,good)=>`${v>0?"+":""}${v.toFixed(1)}${u} since Apr`;
+
+const kp=[
+ ["CSAT",f("csat").toFixed(1)+"%",sg(d("csat"),"pts")],
+ ["First-contact resolution",f("fcr")+"%",sg(d("fcr"),"pts")],
+ ["Repeat tickets",f("repeat")+"%",sg(d("repeat"),"pts")],
+ ["SLA adherence",f("sla")+"%",sg(d("sla"),"pts")],
+ ["First response",f("frt")+" min",sg(d("frt")," min")],
+ ["Escalation rate",(f("esc")/f("tickets")*100).toFixed(1)+"%",sg(f("esc")/f("tickets")*100-D.esc[0]/D.tickets[0]*100,"pts")]
+];
+document.getElementById("kpis").innerHTML=kp.map(k=>`<div class="kpi"><b>${k[1]}</b><span>${k[0]}</span><em>${k[2]}</em></div>`).join("");
+document.getElementById("cat").innerHTML=cats.map(c=>`<tr><td>${c[0]}</td><td class="n">${c[1]}</td><td class="n">${c[2]}</td><td class="n">${c[3]}%</td></tr>`).join("");
+
+const rep=((D.repeat[0]-D.repeat[L])/D.repeat[0]*100).toFixed(0);
+const vol=((D.tickets[L]-D.tickets[0])/D.tickets[0]*100).toFixed(0);
+document.getElementById("ins").innerHTML=[
+ `Volume grew ${vol}% while CSAT and SLA adherence both improved.`,
+ `Repeat tickets fell ${rep}% after root-cause fixes and clearer macros.`,
+ `Offers drive the most tickets (${Math.round(540/1420*100)}%) and take the longest to resolve with Shop, so they are the first place to improve.`,
+ `Escalations dropped from ${D.esc[0]} to ${D.esc[L]} per month as first-contact resolution rose.`
+].map(t=>`<li>${t}</li>`).join("");
+
+const dark=matchMedia("(prefers-color-scheme:dark)").matches;
+const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const tx=css("--mute"),gr=css("--line"),teal=css("--teal"),coral=css("--coral"),amber=css("--amber"),ink=css("--ink");
+Chart.defaults.color=tx;Chart.defaults.font.family='"Public Sans",system-ui,sans-serif';
+const base=(extra={})=>({responsive:true,maintainAspectRatio:false,plugins:{legend:{position:"bottom",labels:{boxWidth:10}}},scales:{x:{grid:{display:false}},y:{grid:{color:gr}},...extra}});
+const line=(label,data,color,yAxisID)=>({type:"line",label,data,borderColor:color,backgroundColor:color,tension:.3,pointRadius:3,yAxisID});
+
+new Chart("c1",{data:{labels:M,datasets:[{type:"bar",label:"Tickets",data:D.tickets,backgroundColor:teal,borderRadius:3,yAxisID:"y"},line("Escalations",D.esc,coral,"y1")]},
+ options:base({y1:{position:"right",grid:{display:false},beginAtZero:true}})});
+new Chart("c2",{data:{labels:M,datasets:[line("CSAT",D.csat,teal)]},options:{...base(),plugins:{legend:{display:false}},scales:{x:{grid:{display:false}},y:{grid:{color:gr},min:92,max:98}}}});
+new Chart("c3",{data:{labels:M,datasets:[line("First-contact resolution",D.fcr,teal),line("Repeat tickets",D.repeat,coral)]},options:base()});
+new Chart("c4",{data:{labels:M,datasets:[line("SLA adherence (%)",D.sla,teal,"y"),line("First response (min)",D.frt,amber,"y1")]},
+ options:base({y:{grid:{color:gr},min:88,max:100},y1:{position:"right",grid:{display:false},min:0}})});
+</script>
+</body>
+</html>
